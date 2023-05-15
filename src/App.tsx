@@ -16,7 +16,7 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          packages status
+          packages statuss
         </a>
       </header>
     </div>
