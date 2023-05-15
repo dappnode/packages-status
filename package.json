@@ -1,6 +1,6 @@
 {
   "name": "my-app",
-  "homepage": "https://dappnode.github.io/QA",
+  "homepage": "https://dappnode.github.io/packages-status",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
