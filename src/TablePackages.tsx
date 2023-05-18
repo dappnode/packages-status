@@ -1,7 +1,5 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
-import Collapse from "@mui/material/Collapse";
-import IconButton from "@mui/material/IconButton";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -10,102 +8,179 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
-import { dnpRegistry, publicRegistry, repo } from "./toolkit";
-import { Registry } from "@dappnode/toolkit";
-import { Manifest, releaseFiles } from "@dappnode/types";
 import { ipfsGateway } from "./params";
-import { Octokit } from "@octokit/rest";
-import { eq, clean } from "semver";
-import { setRepos } from "./setRepos";
 import { PackageRow } from "./types";
 import { setUpdateStatus } from "./setUpdateStatus";
+import {
+  Link,
+  IconButton,
+  Chip,
+  CircularProgress,
+  Tooltip,
+} from "@mui/material";
+import LaunchIcon from "@mui/icons-material/Launch";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
+import DragHandleIcon from "@mui/icons-material/DragHandle";
+import { updateStatusColorMap, urlJoin } from "./utils";
 
-/**
- * Joins multiple url parts safely
- * - Does not break the protocol double slash //
- * - Cleans double slashes at any point
- * @param args ("http://ipfs.io", "ipfs", "Qm")
- * @return "http://ipfs.io/ipfs/Qm"
- */
-export function urlJoin(...args: string[]): string {
-  return args.join("/").replace(/([^:]\/)\/+/g, "$1");
-}
-
-export default function TablePackages() {
-  const [rows, setRows] = React.useState<PackageRow[]>([]);
-  const [query, setQuery] = React.useState("");
-  const [error, setError] = React.useState<any>(null);
-  const [open, setOpen] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
-
-  React.useEffect(() => {
-    async function fetchRegistries() {
-      try {
-        setLoading(true);
-        await setRepos(setRows, setQuery);
-        setLoading(false);
-      } catch (error) {
-        console.error(error);
-        if (error instanceof Error) setError(error.message);
-        else setError(error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchRegistries();
-  }, []);
-
+export default function TablePackages({
+  rows,
+  filteredRows,
+  graphQuery,
+  setRows,
+  setError,
+}: {
+  rows: PackageRow[];
+  filteredRows: PackageRow[];
+  graphQuery: string;
+  setRows: React.Dispatch<React.SetStateAction<PackageRow[]>>;
+  setError: React.Dispatch<React.SetStateAction<any>>;
+}) {
   React.useEffect(() => {
     async function fetchUpdateStatus() {
       try {
-        setLoading(true);
-        await setUpdateStatus(rows, setRows, query);
-        setLoading(false);
+        await setUpdateStatus(rows, setRows, graphQuery);
       } catch (error) {
         console.error(error);
         if (error instanceof Error) setError(error.message);
         else setError(error);
-      } finally {
-        setLoading(false);
       }
     }
 
     fetchUpdateStatus();
-  }, [query]);
+    // Trigger only when graphQuery is set
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [graphQuery]);
 
   return (
     <TableContainer component={Paper}>
-      <Table aria-label="collapsible table">
+      <Table aria-label="collapsible table" stickyHeader>
         <TableHead>
           <TableRow>
-            <TableCell />
-            <TableCell />
-            <TableCell>Updated</TableCell>
-            <TableCell>Registry</TableCell>
-            <TableCell>Repo URL</TableCell>
-            <TableCell>Upstream URL</TableCell>
+            <TableCell align="left" />
+            <TableCell align="left" />
+            <TableCell>
+              <Typography variant="subtitle1">Updated</Typography>
+            </TableCell>
+            <TableCell>
+              <Typography variant="subtitle1">Registry</Typography>
+            </TableCell>
+            <TableCell>
+              <Typography variant="subtitle1">Repo URL</Typography>
+            </TableCell>
+            <TableCell>
+              <Typography variant="subtitle1">Upstream URL</Typography>
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.length &&
-            rows.map((row) => (
-              <React.Fragment>
-                <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
-                  <TableCell>
-                    <img
-                      src={urlJoin(ipfsGateway, row.contentUri, "avatar.png")}
-                      alt="logo"
-                    />
-                  </TableCell>
-                  <TableCell>{`${row.name}:${row.pkgVersion}`}</TableCell>
-                  <TableCell>{row.updateStatus}</TableCell>
-                  <TableCell>{row.registry}</TableCell>
-                  <TableCell>{row.repoUrl}</TableCell>
-                  <TableCell>{row.upstreamRepoUrl}</TableCell>
-                </TableRow>
-              </React.Fragment>
-            ))}
+          {filteredRows.length > 0 &&
+            filteredRows.map(
+              (
+                {
+                  name,
+                  updateStatus,
+                  pkgVersion,
+                  pkgUpstreamVersion,
+                  upstreamVersion,
+                  registry,
+                  repoUrl,
+                  upstreamRepoUrl,
+                  contentUri,
+                  updateStatusError,
+                },
+                index
+              ) => (
+                <React.Fragment>
+                  <Tooltip title={updateStatusError || ""}>
+                    <TableRow
+                      sx={{
+                        backgroundColor: updateStatusColorMap[updateStatus],
+                        borderBottom:
+                          index !== rows.length - 1 ? "1px solid gray" : "none",
+                        "& > *": { borderBottom: "unset" },
+                      }}
+                    >
+                      <TableCell>
+                        <Box
+                          component="img"
+                          src={urlJoin(ipfsGateway, contentUri, "avatar.png")}
+                          alt="logo"
+                          sx={{
+                            width: "30%",
+                            height: "auto",
+                            objectFit: "cover",
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body1">{`${name}:${pkgVersion}`}</Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body1">
+                          {updateStatus === "pending" ? (
+                            <CircularProgress />
+                          ) : (
+                            <>
+                              {" "}
+                              <Chip
+                                icon={
+                                  updateStatus === "patch" ||
+                                  updateStatus === "minor" ? (
+                                    <KeyboardArrowDownIcon />
+                                  ) : updateStatus === "major" ? (
+                                    <KeyboardDoubleArrowDownIcon />
+                                  ) : updateStatus === "updated" ? (
+                                    <DragHandleIcon />
+                                  ) : (
+                                    <></>
+                                  )
+                                }
+                                label={updateStatus}
+                              />{" "}
+                              {`${pkgUpstreamVersion} - ${upstreamVersion}`}
+                            </>
+                          )}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={registry}
+                          color={registry === "dnp" ? "primary" : "secondary"}
+                          sx={{
+                            backgroundColor:
+                              registry === "dnp" ? "#76cfb8" : "#a376cf",
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Link
+                          href={repoUrl.replace("git+", "")}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <IconButton>
+                            <LaunchIcon />
+                          </IconButton>
+                        </Link>
+                      </TableCell>
+                      <TableCell>
+                        <Link
+                          href={`https://github.com/${upstreamRepoUrl}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <IconButton>
+                            <LaunchIcon />
+                          </IconButton>
+                        </Link>
+                      </TableCell>
+                    </TableRow>
+                  </Tooltip>
+                </React.Fragment>
+              )
+            )}
         </TableBody>
       </Table>
     </TableContainer>

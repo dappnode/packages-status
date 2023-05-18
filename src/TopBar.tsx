@@ -8,6 +8,7 @@ import Typography from "@mui/material/Typography";
 import InputBase from "@mui/material/InputBase";
 import SearchIcon from "@mui/icons-material/Search";
 import dappnodeLogo from "./dappnode_logo.png";
+import { PackageRow } from "./types";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -51,7 +52,32 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-export default function TopBar() {
+export default function TopBar({
+  rows,
+  setFilteredRows,
+}: {
+  rows: PackageRow[];
+  setFilteredRows: React.Dispatch<React.SetStateAction<PackageRow[]>>;
+}) {
+  const [searchQuery, setSearchQuery] = React.useState("");
+  React.useEffect(() => {
+    const lowercasedFilter = searchQuery.toLowerCase();
+    const keys = ["name", "registry", "updateStatus"];
+
+    if (lowercasedFilter === "") {
+      setFilteredRows(rows);
+    } else {
+      const filteredData = rows.filter((item) => {
+        return keys.some((key) =>
+          String(item[key as keyof PackageRow])
+            .toLowerCase()
+            .includes(lowercasedFilter)
+        );
+      });
+      setFilteredRows(filteredData);
+    }
+  }, [searchQuery]);
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
@@ -85,6 +111,8 @@ export default function TopBar() {
             <StyledInputBase
               placeholder="Search…"
               inputProps={{ "aria-label": "search" }}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </Search>
         </Toolbar>

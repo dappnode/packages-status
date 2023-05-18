@@ -4,9 +4,10 @@ import {
   Registry,
 } from "@dappnode/toolkit";
 import { releaseFiles, Manifest } from "@dappnode/types";
-import { clean, ReleaseType } from "semver";
+import { clean } from "semver";
 import { dnpRegistry, publicRegistry, repo } from "./toolkit";
 import { PackageRow } from "./types";
+import { getGraphFieldName } from "./utils";
 
 function timeoutPromise<T>(ms: number, promise: Promise<T>): Promise<T> {
   return new Promise((resolve, reject) => {
@@ -81,12 +82,12 @@ export async function setRepos(
                   const repoName = split[1];
                   if (split.length !== 2)
                     throw new Error("Invalid upstream repo");
-                  const fieldName = `r${registry.replace(
-                    /-/g,
-                    "_"
-                  )}${_repo.name.replace(/-/g, "_")}`;
+
                   _query += `
-${fieldName}: repository(owner: "${owner}", name: "${repoName}") {
+${getGraphFieldName(
+  _repo.name,
+  registry
+)}: repository(owner: "${owner}", name: "${repoName}") {
   latestRelease {
     tagName
   }
@@ -103,8 +104,9 @@ ${fieldName}: repository(owner: "${owner}", name: "${repoName}") {
                     registry,
                     pkgVersion: version,
                     contentUri,
-                    updateStatus: "NA",
+                    updateStatus: "pending",
                     pkgUpstreamVersion: upstreamVersionCleaned,
+                    upstreamVersion: "",
                     repoUrl: repository.url || "",
                     upstreamRepoUrl: upstreamRepo,
                   },
