@@ -7,7 +7,7 @@ const infuraProvider = new ethers.InfuraProvider(
   process.env.INFURA_MAINNET_KEY
 );
 
-export const repo = new DappnodeRepository(
+export const reposit = new DappnodeRepository(
   ipfsGateway,
   infuraProvider,
   3 * 1000

@@ -6,6 +6,7 @@ import Stats from "./Stats";
 import { PackageRow } from "./types";
 import { Snackbar, Alert } from "@mui/material";
 import { setRepos } from "./setRepos";
+import { setStakerRepos } from "./setStakerRepos";
 
 function App() {
   const [rows, setRows] = React.useState<PackageRow[]>([]);
@@ -27,7 +28,8 @@ function App() {
     async function fetchRegistries() {
       try {
         setLoading(true);
-        await setRepos(setRows, setGraphQuery);
+        //await setRepos(setRows, setGraphQuery);
+        await setStakerRepos(setRows, setGraphQuery);
       } catch (error) {
         console.error(error);
         if (error instanceof Error) setError(error.message);

@@ -5,7 +5,7 @@ import {
 } from "@dappnode/toolkit";
 import { releaseFiles, Manifest } from "@dappnode/types";
 import { clean } from "semver";
-import { dnpRegistry, publicRegistry, repo } from "./toolkit";
+import { dnpRegistry, publicRegistry, reposit } from "./toolkit";
 import { PackageRow } from "./types";
 import { getGraphFieldName } from "./utils";
 
@@ -53,10 +53,10 @@ export async function setRepos(
             (async () => {
               try {
                 const { contentUri, version } =
-                  await repo.getVersionAndIpfsHash({
+                  await reposit.getVersionAndIpfsHash({
                     dnpName: `${_repo.name}.${registry}.dappnode.eth`,
                   });
-                const ipfsEntries = await repo.list(contentUri);
+                const ipfsEntries = await reposit.list(contentUri);
                 const manifestHash = ipfsEntries
                   .find((entry) => releaseFiles.manifest.regex.test(entry.name))
                   ?.cid.toString();
@@ -66,7 +66,7 @@ export async function setRepos(
                   return;
                 }
 
-                const manifest = await repo.getPkgAsset<Manifest>(
+                const manifest = await reposit.getPkgAsset<Manifest>(
                   releaseFiles.manifest,
                   manifestHash
                 );
