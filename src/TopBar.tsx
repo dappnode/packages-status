@@ -76,6 +76,7 @@ export default function TopBar({
       });
       setFilteredRows(filteredData);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery]);
 
   return (
