@@ -111,19 +111,19 @@ function getGraphFieldName(dnpName: string, registry: Registry): string {
 
 export async function handler(event, context) {
   const headers = {
-    "access-control-allow-origin": "*",
-    "access-control-allow-headers": "Content-Type",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Methods": "POST",
   };
 
-  // Handle OPTIONS PreFlight
-  if (event.httpMethod === "OPTIONS") {
+  if (event.httpMethod !== "POST") {
+    // To enable CORS
     return {
-      statusCode: "204",
+      statusCode: 200, // <-- Important!
       headers,
-      body: "",
+      body: "This was not a POST request!",
     };
   }
-
   const requestBody = JSON.parse(event.body);
   const query = requestBody.query;
   if (!query) throw new Error("Missing query");
