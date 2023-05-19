@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "module": "commonjs"
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "verbatimModuleSyntax": true
   },
   "include": ["./**/*.ts"]
 }
