@@ -112,9 +112,18 @@ function getGraphFieldName(dnpName: string, registry: Registry): string {
 export async function handler(event, context) {
   const requestBody = JSON.parse(event.body);
   const query = requestBody.query;
+  if (!query) throw new Error("Missing query");
+  if (typeof query !== "string") throw new Error("Invalid query");
   const rows = requestBody.rows;
+  if (!rows) throw new Error("Missing rows");
+  if (!Array.isArray(rows)) throw new Error("Invalid rows");
+  if (rows.length === 0) throw new Error("Empty rows");
   return {
     statusCode: 200,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "Content-Type",
+    },
     body: JSON.stringify(await getUpdateStatus(rows, query)),
   };
 }

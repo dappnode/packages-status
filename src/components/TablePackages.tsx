@@ -37,15 +37,20 @@ export default function TablePackages({
   setError: React.Dispatch<React.SetStateAction<any>>;
 }) {
   React.useEffect(() => {
-    fetch("/.netlify/functions/myFunction", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ rows, query: graphQuery }),
-    })
+    fetch(
+      "https://packages-status.netlify.app/.netlify/functions/getUpdateStatus",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ rows, query: graphQuery }),
+      }
+    )
       .then((response) => response.json())
-      .then((data) => setRows(data))
+      .then((data) => {
+        setRows(data);
+      })
       .catch((error) => {
         console.error("Error:", error);
       });
