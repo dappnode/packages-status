@@ -6,7 +6,7 @@
   "private": true,
   "dependencies": {
     "@dappnode/toolkit": "^0.1.12",
-    "@dappnode/types": "^0.1.14",
+    "@dappnode/types": "^0.1.17",
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",
     "@fontsource/roboto": "^4.5.8",

@@ -5,13 +5,10 @@ import { Box, CircularProgress, Container } from "@mui/material";
 import Stats from "./components/Stats";
 import { PackageRow } from "./logic/types";
 import { Snackbar, Alert } from "@mui/material";
-import { setStakerRepos } from "./logic/setStakerRepos";
 
 function App() {
   const [rows, setRows] = React.useState<PackageRow[]>([]);
   const [filteredRows, setFilteredRows] = React.useState<PackageRow[]>([]);
-
-  const [graphQuery, setGraphQuery] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<any>(null);
   const [open, setOpen] = React.useState(false);
@@ -24,11 +21,18 @@ function App() {
   };
 
   React.useEffect(() => {
-    async function fetchRegistries() {
+    async function fetchStakerPkgs() {
       try {
         setLoading(true);
-        //await setRepos(setRows, setGraphQuery);
-        await setStakerRepos(setRows, setGraphQuery);
+        const reposnse = await fetch(
+          "https://packages-status.netlify.app/.netlify/functions/getStakerPkgsStatus",
+          {
+            method: "GET",
+          }
+        );
+        const data = await reposnse.json();
+        if (!reposnse.ok) throw new Error(data.message);
+        setRows(data);
       } catch (error) {
         console.error(error);
         if (error instanceof Error) setError(error.message);
@@ -38,7 +42,26 @@ function App() {
       }
     }
 
-    fetchRegistries();
+    fetchStakerPkgs();
+
+    fetch(
+      "https://packages-status.netlify.app/.netlify/functions/getStakerPkgsStatus",
+      {
+        method: "GET",
+      }
+    )
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        setRows(data);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+
+    // Trigger only when graphQuery is set
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   React.useEffect(() => {
@@ -59,13 +82,7 @@ function App() {
 
           <Container maxWidth="lg">
             <Box my={4}>
-              <TablePackages
-                rows={rows}
-                filteredRows={filteredRows}
-                graphQuery={graphQuery}
-                setRows={setRows}
-                setError={setError}
-              />
+              <TablePackages rows={rows} filteredRows={filteredRows} />
             </Box>
           </Container>
         </>

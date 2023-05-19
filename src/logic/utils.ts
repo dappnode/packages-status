@@ -1,4 +1,3 @@
-import { Registry } from "@dappnode/toolkit";
 import { UpdateStatus } from "./types";
 
 export const updateStatusColorMap: Record<UpdateStatus | "other", string> = {
@@ -24,20 +23,4 @@ export const updateStatusColorMap: Record<UpdateStatus | "other", string> = {
  */
 export function urlJoin(...args: string[]): string {
   return args.join("/").replace(/([^:]\/)\/+/g, "$1");
-}
-
-/**
- * Returns the GraphQL field name for a given repo
- * It must remove the dashes from the repo names
- */
-export function getGraphFieldName(dnpName: string, registry: Registry): string {
-  return `r${registry.replace(/-/g, "_")}${dnpName
-    .split(".")[0]
-    .replace(/-/g, "_")}`;
-}
-
-export function getRegistry(repoName: string): Registry {
-  if (repoName.includes("dnp")) return "dnp";
-  else if (repoName.includes("public")) return "public";
-  else throw new Error(`Unknown registry for repo ${repoName}`);
 }
