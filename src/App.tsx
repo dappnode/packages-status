@@ -43,25 +43,6 @@ function App() {
     }
 
     fetchStakerPkgs();
-
-    fetch(
-      "https://packages-status.netlify.app/.netlify/functions/getStakerPkgsStatus",
-      {
-        method: "GET",
-      }
-    )
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        setRows(data);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
-
-    // Trigger only when graphQuery is set
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   React.useEffect(() => {
