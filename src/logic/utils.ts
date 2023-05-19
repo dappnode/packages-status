@@ -31,5 +31,13 @@ export function urlJoin(...args: string[]): string {
  * It must remove the dashes from the repo names
  */
 export function getGraphFieldName(dnpName: string, registry: Registry): string {
-  return `r${registry.replace(/-/g, "_")}${dnpName.replace(/-/g, "_")}`;
+  return `r${registry.replace(/-/g, "_")}${dnpName
+    .split(".")[0]
+    .replace(/-/g, "_")}`;
+}
+
+export function getRegistry(repoName: string): Registry {
+  if (repoName.includes("dnp")) return "dnp";
+  else if (repoName.includes("public")) return "public";
+  else throw new Error(`Unknown registry for repo ${repoName}`);
 }

@@ -4,10 +4,10 @@ import { ipfsGateway } from "./params";
 
 const infuraProvider = new ethers.InfuraProvider(
   "mainnet",
-  process.env.INFURA_MAINNET_KEY
+  process.env.INFURA_MAINNET_KEY || "e6c920580178424bbdf6dde266bfb5bd"
 );
 
-export const repo = new DappnodeRepository(
+export const reposit = new DappnodeRepository(
   ipfsGateway,
   infuraProvider,
   3 * 1000

@@ -8,9 +8,9 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
-import { ipfsGateway } from "./params";
-import { PackageRow } from "./types";
-import { setUpdateStatus } from "./setUpdateStatus";
+import { ipfsGateway } from "../logic/params";
+import { PackageRow } from "../logic/types";
+import { setUpdateStatus } from "../logic/setUpdateStatus";
 import {
   Link,
   IconButton,
@@ -22,7 +22,7 @@ import LaunchIcon from "@mui/icons-material/Launch";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 import DragHandleIcon from "@mui/icons-material/DragHandle";
-import { updateStatusColorMap, urlJoin } from "./utils";
+import { updateStatusColorMap, urlJoin } from "../logic/utils";
 
 export default function TablePackages({
   rows,
@@ -67,10 +67,10 @@ export default function TablePackages({
               <Typography variant="subtitle1">Registry</Typography>
             </TableCell>
             <TableCell>
-              <Typography variant="subtitle1">Repo URL</Typography>
+              <Typography variant="subtitle1">Repo</Typography>
             </TableCell>
             <TableCell>
-              <Typography variant="subtitle1">Upstream URL</Typography>
+              <Typography variant="subtitle1">Upstream</Typography>
             </TableCell>
           </TableRow>
         </TableHead>

@@ -1,6 +1,6 @@
 import React from "react";
-import { PackageRow, UpdateStatus } from "./types";
-import { updateStatusColorMap } from "./utils";
+import { PackageRow, UpdateStatus } from "../logic/types";
+import { updateStatusColorMap } from "../logic/utils";
 import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, registerables } from "chart.js";
 
