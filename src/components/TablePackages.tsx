@@ -10,7 +10,6 @@ import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
 import { ipfsGateway } from "../logic/params";
 import { PackageRow } from "../logic/types";
-import { setUpdateStatus } from "../logic/setUpdateStatus";
 import {
   Link,
   IconButton,
@@ -38,17 +37,19 @@ export default function TablePackages({
   setError: React.Dispatch<React.SetStateAction<any>>;
 }) {
   React.useEffect(() => {
-    async function fetchUpdateStatus() {
-      try {
-        await setUpdateStatus(rows, setRows, graphQuery);
-      } catch (error) {
-        console.error(error);
-        if (error instanceof Error) setError(error.message);
-        else setError(error);
-      }
-    }
+    fetch("/.netlify/functions/myFunction", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ rows, query: graphQuery }),
+    })
+      .then((response) => response.json())
+      .then((data) => setRows(data))
+      .catch((error) => {
+        console.error("Error:", error);
+      });
 
-    fetchUpdateStatus();
     // Trigger only when graphQuery is set
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [graphQuery]);

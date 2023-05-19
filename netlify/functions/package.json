@@ -1,0 +1,17 @@
+{
+  "name": "functions",
+  "version": "1.0.0",
+  "description": "",
+  "main": "getStakerPackages.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@dappnode/toolkit": "^0.1.12",
+    "@dappnode/types": "^0.1.13",
+    "@octokit/graphql": "^5.0.5",
+    "semver": "^7.5.1"
+  }
+}
