@@ -11,7 +11,7 @@ export async function setUpdateStatus(
   const result = (await graphql({
     query: query,
     headers: {
-      authorization: "token " + process.env.PABLO_TOKEN,
+      authorization: process.env.PABLO_TOKEN,
     },
   })) as any;
 
