@@ -47,7 +47,10 @@ export default function TablePackages({
         body: JSON.stringify({ rows, query: graphQuery }),
       }
     )
-      .then((response) => response.json())
+      .then((response) => {
+        console.log(response);
+        return response.json();
+      })
       .then((data) => {
         setRows(data);
       })
