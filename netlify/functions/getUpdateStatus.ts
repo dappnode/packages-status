@@ -111,8 +111,8 @@ function getGraphFieldName(dnpName: string, registry: Registry): string {
 
 export async function handler(event, context) {
   const headers = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "access-control-allow-origin": "*",
+    "access-control-allow-headers": "Content-Type",
   };
 
   // Handle OPTIONS PreFlight
