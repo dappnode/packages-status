@@ -16,7 +16,7 @@ export interface PackageRow {
   upstreamRepoUrl: string;
 }
 
-async function getUpdateStatus(
+export async function getUpdateStatus(
   rows: PackageRow[],
   query: string
 ): Promise<PackageRow[]> {
@@ -109,7 +109,7 @@ function getGraphFieldName(dnpName: string, registry: Registry): string {
     .replace(/-/g, "_")}`;
 }
 
-exports.handler = async function (event, context) {
+export async function handler(event, context) {
   const requestBody = JSON.parse(event.body);
   const query = requestBody.query;
   const rows = requestBody.rows;
@@ -117,4 +117,4 @@ exports.handler = async function (event, context) {
     statusCode: 200,
     body: JSON.stringify(await getUpdateStatus(rows, query)),
   };
-};
+}
