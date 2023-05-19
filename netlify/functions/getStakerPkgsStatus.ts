@@ -1,6 +1,8 @@
-import { Registry } from "@dappnode/toolkit";
+import { DappnodeRepository, Registry } from "@dappnode/toolkit";
 import { ReleaseType, clean, diff, valid } from "semver";
 import { graphql } from "@octokit/graphql";
+import { Manifest, releaseFiles, stakerPkgs } from "@dappnode/types";
+import { ethers } from "ethers";
 
 export type UpdateStatus = ReleaseType | "updated" | "NA" | "pending";
 export interface PackageRow {
@@ -16,7 +18,13 @@ export interface PackageRow {
   upstreamRepoUrl: string;
 }
 
-export async function getUpdateStatus(
+function getRegistry(repoName: string): Registry {
+  if (repoName.includes("dnp")) return "dnp";
+  else if (repoName.includes("public")) return "public";
+  else throw new Error(`Unknown registry for repo ${repoName}`);
+}
+
+async function getUpdateStatus(
   rows: PackageRow[],
   query: string
 ): Promise<PackageRow[]> {
@@ -27,7 +35,7 @@ export async function getUpdateStatus(
     },
   })) as any;
 
-  const newRows = rows.map((row) => {
+  return rows.map((row) => {
     const { registry, name } = row;
     // The dnpNames may contain dashes, which are not valid in GraphQL field names
     const latestUpstreamVersionFromGithub =
@@ -80,8 +88,6 @@ export async function getUpdateStatus(
       };
     return { ...row, updateStatus, upstreamVersion: cleanedVersion };
   });
-
-  return sortPackagesByUpdateStatus(newRows);
 }
 
 function sortPackagesByUpdateStatus(rows: PackageRow[]): PackageRow[] {
@@ -109,32 +115,96 @@ function getGraphFieldName(dnpName: string, registry: Registry): string {
     .replace(/-/g, "_")}`;
 }
 
+export async function getStakerPkgsStatus(): Promise<PackageRow[]> {
+  let query = "";
+  const pkgs: PackageRow[] = [];
+
+  const infuraProvider = new ethers.InfuraProvider(
+    "mainnet",
+    process.env.MAINNET_INFURA_KEY
+  );
+  const reposit = new DappnodeRepository(
+    "https://gateway.ipfs.dappnode.io",
+    infuraProvider,
+    3 * 1000
+  );
+
+  await Promise.all(
+    stakerPkgs.map(async (repo) => {
+      try {
+        const registry = getRegistry(repo);
+        const { contentUri, version } = await reposit.getVersionAndIpfsHash({
+          dnpName: repo,
+        });
+        const ipfsEntries = await reposit.list(contentUri);
+        const manifestHash = ipfsEntries
+          .find((entry) => releaseFiles.manifest.regex.test(entry.name))
+          ?.cid.toString();
+
+        if (!manifestHash) {
+          console.log("Manifest not found. Skipping...");
+          return;
+        }
+
+        const manifest = await reposit.getPkgAsset<Manifest>(
+          releaseFiles.manifest,
+          manifestHash
+        );
+        const {
+          upstreamVersion = "",
+          upstreamRepo = "",
+          repository = {},
+        } = manifest;
+
+        if (upstreamRepo) {
+          const split = upstreamRepo.split("/");
+          const owner = split[0];
+          const repoName = split[1];
+          if (split.length !== 2) throw new Error("Invalid upstream repo");
+
+          query += `
+${getGraphFieldName(
+  repo,
+  registry
+)}: repository(owner: "${owner}", name: "${repoName}") {
+  latestRelease {
+    tagName
+  }
+}
+`;
+        }
+
+        const upstreamVersionCleaned = clean(upstreamVersion) || "";
+
+        pkgs.push({
+          name: repo,
+          registry: registry,
+          pkgVersion: version,
+          contentUri,
+          updateStatus: "pending",
+          pkgUpstreamVersion: upstreamVersionCleaned,
+          upstreamVersion: "",
+          repoUrl: repository.url || "",
+          upstreamRepoUrl: upstreamRepo,
+        });
+      } catch (e) {
+        console.log(e);
+      }
+    })
+  );
+  return sortPackagesByUpdateStatus(await getUpdateStatus(pkgs, `{${query}}`));
+}
+
 export async function handler(event, context) {
   const headers = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type",
-    "Access-Control-Allow-Methods": "POST",
+    "Access-Control-Allow-Methods": "GET",
   };
 
-  if (event.httpMethod !== "POST") {
-    // To enable CORS
-    return {
-      statusCode: 200, // <-- Important!
-      headers,
-      body: "This was not a POST request!",
-    };
-  }
-  const requestBody = JSON.parse(event.body);
-  const query = requestBody.query;
-  if (!query) throw new Error("Missing query");
-  if (typeof query !== "string") throw new Error("Invalid query");
-  const rows = requestBody.rows;
-  if (!rows) throw new Error("Missing rows");
-  if (!Array.isArray(rows)) throw new Error("Invalid rows");
-  if (rows.length === 0) throw new Error("Empty rows");
   return {
     statusCode: 200,
     headers,
-    body: JSON.stringify(await getUpdateStatus(rows, query)),
+    body: JSON.stringify(await getStakerPkgsStatus()),
   };
 }

@@ -8,7 +8,6 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
-import { ipfsGateway } from "../logic/params";
 import { PackageRow } from "../logic/types";
 import {
   Link,
@@ -26,41 +25,10 @@ import { updateStatusColorMap, urlJoin } from "../logic/utils";
 export default function TablePackages({
   rows,
   filteredRows,
-  graphQuery,
-  setRows,
-  setError,
 }: {
   rows: PackageRow[];
   filteredRows: PackageRow[];
-  graphQuery: string;
-  setRows: React.Dispatch<React.SetStateAction<PackageRow[]>>;
-  setError: React.Dispatch<React.SetStateAction<any>>;
 }) {
-  React.useEffect(() => {
-    fetch(
-      "https://packages-status.netlify.app/.netlify/functions/getUpdateStatus",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ rows, query: graphQuery }),
-      }
-    )
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        setRows(data);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
-
-    // Trigger only when graphQuery is set
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [graphQuery]);
-
   return (
     <TableContainer component={Paper}>
       <Table aria-label="collapsible table" stickyHeader>
@@ -113,7 +81,11 @@ export default function TablePackages({
                       <TableCell>
                         <Box
                           component="img"
-                          src={urlJoin(ipfsGateway, contentUri, "avatar.png")}
+                          src={urlJoin(
+                            "https://gateway.ipfs.dappnode.io",
+                            contentUri,
+                            "avatar.png"
+                          )}
                           alt="logo"
                           sx={{
                             width: "30%",
