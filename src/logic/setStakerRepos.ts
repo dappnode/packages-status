@@ -2,7 +2,7 @@ import { clean } from "semver";
 import { reposit } from "./toolkit";
 import { PackageRow } from "./types";
 import { Manifest, releaseFiles, stakerPkgs } from "@dappnode/types";
-import { getGraphFieldName } from "./utils";
+import { getGraphFieldName, getRegistry } from "./utils";
 
 export async function setStakerRepos(
   setRows: React.Dispatch<React.SetStateAction<PackageRow[]>>,
@@ -13,6 +13,7 @@ export async function setStakerRepos(
   await Promise.all(
     stakerPkgs.map(async (repo) => {
       try {
+        const registry = getRegistry(repo);
         const { contentUri, version } = await reposit.getVersionAndIpfsHash({
           dnpName: repo,
         });
@@ -45,7 +46,7 @@ export async function setStakerRepos(
           _query += `
 ${getGraphFieldName(
   repo,
-  "dnp"
+  registry
 )}: repository(owner: "${owner}", name: "${repoName}") {
   latestRelease {
     tagName
@@ -60,7 +61,7 @@ ${getGraphFieldName(
           ...rows,
           {
             name: repo,
-            registry: "dnp",
+            registry: registry,
             pkgVersion: version,
             contentUri,
             updateStatus: "pending",

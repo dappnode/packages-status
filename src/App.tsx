@@ -1,12 +1,11 @@
 import React from "react";
-import TopBar from "./TopBar";
-import TablePackages from "./TablePackages";
+import TopBar from "./components/TopBar";
+import TablePackages from "./components/TablePackages";
 import { Box, CircularProgress, Container } from "@mui/material";
-import Stats from "./Stats";
-import { PackageRow } from "./types";
+import Stats from "./components/Stats";
+import { PackageRow } from "./logic/types";
 import { Snackbar, Alert } from "@mui/material";
-import { setRepos } from "./setRepos";
-import { setStakerRepos } from "./setStakerRepos";
+import { setStakerRepos } from "./logic/setStakerRepos";
 
 function App() {
   const [rows, setRows] = React.useState<PackageRow[]>([]);

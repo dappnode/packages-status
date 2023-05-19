@@ -7,8 +7,9 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import InputBase from "@mui/material/InputBase";
 import SearchIcon from "@mui/icons-material/Search";
-import dappnodeLogo from "./dappnode_logo.png";
-import { PackageRow } from "./types";
+import dappnodeLogo from "../dappnode_logo.png";
+import { PackageRow } from "../logic/types";
+import { Tooltip } from "@mui/material";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -109,12 +110,14 @@ export default function TopBar({
             <SearchIconWrapper>
               <SearchIcon />
             </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Search…"
-              inputProps={{ "aria-label": "search" }}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+            <Tooltip title={"Search by name, registry or status"}>
+              <StyledInputBase
+                placeholder="Search..."
+                inputProps={{ "aria-label": "search" }}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </Tooltip>
           </Search>
         </Toolbar>
       </AppBar>

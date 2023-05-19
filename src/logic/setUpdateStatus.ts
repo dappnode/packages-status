@@ -69,5 +69,24 @@ export async function setUpdateStatus(
     return { ...row, updateStatus, upstreamVersion: cleanedVersion };
   });
 
-  setRows(newRows);
+  setRows(sortPackagesByUpdateStatus(newRows));
+}
+
+function sortPackagesByUpdateStatus(rows: PackageRow[]): PackageRow[] {
+  const statusPriority = {
+    major: 1,
+    premajor: 2,
+    minor: 3,
+    preminor: 4,
+    patch: 5,
+    prepatch: 6,
+    prerelease: 7,
+    updated: 8,
+    NA: 9,
+    pending: 10,
+  };
+
+  return rows.sort((a, b) => {
+    return statusPriority[a.updateStatus] - statusPriority[b.updateStatus];
+  });
 }
