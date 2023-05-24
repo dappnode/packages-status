@@ -3,7 +3,7 @@ import TopBar from "./components/TopBar";
 import TablePackages from "./components/TablePackages";
 import { Box, CircularProgress, Container } from "@mui/material";
 import Stats from "./components/Stats";
-import { PackageRow } from "./logic/types";
+import { type PackageRow } from "./logic/types";
 import { Snackbar, Alert } from "@mui/material";
 
 function App() {
