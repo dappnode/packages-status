@@ -1,4 +1,4 @@
-import { UpdateStatus } from "./types";
+import { type UpdateStatus } from "./types";
 
 export const updateStatusColorMap: Record<UpdateStatus | "other", string> = {
   updated: "lightgreen",

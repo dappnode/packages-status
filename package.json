@@ -5,7 +5,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@dappnode/toolkit": "^0.1.12",
+    "@dappnode/toolkit": "^0.1.18",
     "@dappnode/types": "^0.1.17",
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",

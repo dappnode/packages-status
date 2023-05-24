@@ -1,8 +1,8 @@
-import { DappnodeRepository, Registry } from "@dappnode/toolkit";
-import { ReleaseType, clean, diff, valid } from "semver";
+import { DappnodeRepository, type Registry } from "@dappnode/toolkit";
+import { type ReleaseType, clean, diff, valid } from "semver";
 import { graphql } from "@octokit/graphql";
-import { Manifest, releaseFiles, stakerPkgs } from "@dappnode/types";
-import { ethers } from "ethers";
+import { type Manifest, releaseFiles, stakerPkgs } from "@dappnode/types";
+import type { Handler, HandlerEvent, HandlerContext } from "@netlify/functions";
 
 export type UpdateStatus = ReleaseType | "updated" | "NA" | "pending";
 export interface PackageRow {
@@ -118,14 +118,9 @@ function getGraphFieldName(dnpName: string, registry: Registry): string {
 export async function getStakerPkgsStatus(): Promise<PackageRow[]> {
   let query = "";
   const pkgs: PackageRow[] = [];
-
-  const infuraProvider = new ethers.InfuraProvider(
-    "mainnet",
-    process.env.MAINNET_INFURA_KEY
-  );
   const reposit = new DappnodeRepository(
     "https://gateway.ipfs.dappnode.io",
-    infuraProvider,
+    `https://mainnet.infura.io/v3/${process.env.MAINNET_INFURA_KEY}`,
     3 * 1000
   );
 
@@ -195,7 +190,7 @@ ${getGraphFieldName(
   return sortPackagesByUpdateStatus(await getUpdateStatus(pkgs, `{${query}}`));
 }
 
-export async function handler(event, context) {
+export async function handler(event: HandlerEvent, context: HandlerContext) {
   const headers = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type",

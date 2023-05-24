@@ -1,5 +1,5 @@
-import { Registry } from "@dappnode/toolkit";
-import { ReleaseType } from "semver";
+import { type Registry } from "@dappnode/toolkit";
+import { type ReleaseType } from "semver";
 
 export type UpdateStatus = ReleaseType | "updated" | "NA" | "pending";
 export interface PackageRow {
