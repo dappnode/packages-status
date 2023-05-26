@@ -30,7 +30,7 @@ jobs:
           fi
 
           # Prepare Discord message
-          echo "@Devs :wave: Greetings DAppNode team, Our routine check has identified certain packages that require updates." > message.txt
+          echo "<@&1009349398075027476> :wave: Greetings DAppNode team, Our routine check has identified certain packages that require updates." > message.txt
           echo "See <https://dappnode.github.io/packages-status/>: :point_right:" >> message.txt
           echo "" >> message.txt
           while IFS= read -r line; do
