@@ -1,0 +1,50 @@
+name: Update Status Check
+
+on:
+  schedule:
+    - cron: "0 7 * * *" # runs every day at 9am CET/CEST
+
+jobs:
+  check-updates:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup environment
+        run: sudo apt-get install -y curl jq
+
+      - name: Check for updates
+        run: |
+          # Fetch data and save to a file
+          curl 'https://packages-status.netlify.app/.netlify/functions/getStakerPkgsStatus' -o pkgs.json
+
+          # Parse JSON and filter packages
+          jq -c '.[] | select(.updateStatus != "updated")' pkgs.json > filtered_pkgs.json
+
+          # Check if file is empty
+          if [[ ! -s filtered_pkgs.json ]]; then
+            echo "No packages need updates."
+            exit 0
+          fi
+
+          # Prepare Discord message
+          echo "@Devs :wave: Greetings DAppNode team, Our routine check has identified certain packages that require updates." > message.txt
+          echo "See <https://dappnode.github.io/packages-status/)>: :point_right:" >> message.txt
+          echo "" >> message.txt
+          while IFS= read -r line; do
+              pkg_name=$(echo "$line" | jq -r '.name')
+              pkg_upstream_version=$(echo "$line" | jq -r '.pkgUpstreamVersion')
+              upstream_version=$(echo "$line" | jq -r '.upstreamVersion')
+              repo_url=$(echo "$line" | jq -r '.repoUrl')
+              echo "- ${pkg_name}: ${pkg_upstream_version} vs ${upstream_version}. <${repo_url}>" >> message.txt
+          done < filtered_pkgs.json
+
+          # Send Discord message
+          # This assumes you have a Discord webhook set up and its URL is stored in the DISCORD_WEBHOOK_URL environment variable
+          escaped_content=$(jq -sRr @json <<< "$(cat message.txt)")
+          curl -X POST -H "Content-Type: application/json" -d "{\"content\": $escaped_content}" ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
